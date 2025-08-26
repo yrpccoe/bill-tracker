@@ -58,7 +58,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { title, amount, date, s3Key } = body;
 
-    // Validate required fields
     if (!title || !amount || !date || !s3Key) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -66,7 +65,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (typeof amount !== "number" || amount < 0) {
+    const amountNum = Number(amount);
+    if (isNaN(amountNum) || amountNum < 0) {
       return NextResponse.json(
         { error: "Amount must be a positive number" },
         { status: 400 }
@@ -75,9 +75,9 @@ export async function POST(request: NextRequest) {
 
     const bill = new Bill({
       title,
-      amount,
+      amount: amountNum,
       date,
-      s3Key, // only store the key
+      s3Key,
     });
 
     await bill.save();
